@@ -1,67 +1,4 @@
---[[
-    AxiUI — ConfigManager v2.1.0 (Standalone)
-    Full profile-based config save/load system.
-    Works with any script, any renderer, or no renderer at all.
-
-    ── LOAD ORDER ──────────────────────────────────────────────────
-        local AxiUI    = loadstring(game:HttpGet("...AxiUI_Core.lua"))()
-        local Renderer = loadstring(game:HttpGet("...Renderers/AxiUI_Renderer_Modern.lua"))()
-        AxiUI:SetRenderer(Renderer)
-
-        local CM = loadstring(game:HttpGet("...AxiUI_ConfigManager.lua"))()
-        CM:Init(AxiUI, "MyScript")
-
-    ── QUICK API ───────────────────────────────────────────────────
-        CM:Save("Combat")            -- save current flags to "Combat" profile
-        CM:Load("Combat")            -- restore flags and fire all element callbacks
-        CM:Delete("Combat")          -- remove the profile
-        CM:List()                    -- { "Combat", "Default", ... }
-        CM:SetDefault("Combat")      -- auto-loaded by LoadDefault() on next run
-        CM:LoadDefault()             -- load the marked default (call at script start)
-        CM:SetAutoSave(true)         -- auto-save to current profile after every change
-        CM:SetAutoSave(true, 3)      -- same, 3-second debounce (default: 2s)
-
-    ── CUSTOM TYPES ─────────────────────────────────────────────────
-        Script devs can teach the serializer about any value type:
-
-        CM:RegisterType("cframe",
-            function(v) return typeof(v) == "CFrame" end,
-            function(v) return { px=v.X, py=v.Y, pz=v.Z,
-                                  rx=v:ToEulerAnglesXYZ() } end,  -- serialize → table
-            function(d) return CFrame.new(d.px, d.py, d.pz)
-                             * CFrame.Angles(d.rx or 0, 0, 0) end -- deserialize ← table
-        )
-
-        Built-in types are also registered this way:
-            "boolean", "number", "string", "enum", "color3", "vector2", "vector3"
-
-    ── EXTRA DATA SLOTS ────────────────────────────────────────────
-        Save/load arbitrary non-flag data alongside the profile:
-
-        CM:RegisterExtra("windowPos",
-            function() return { x = win.Frame.Position.X.Offset,
-                                y = win.Frame.Position.Y.Offset } end,
-            function(d) win.Frame.Position = UDim2.fromOffset(d.x, d.y) end
-        )
-
-    ── OPTIONAL UI ──────────────────────────────────────────────────
-        CM:BuildUI(myGroupbox)   -- injects full manager UI into any groupbox
-        CM:ApplyToTab(myTab)     -- convenience: creates a "Config" groupbox on tab
-
-    ── EVENTS ───────────────────────────────────────────────────────
-        CM:OnSaved(function(name) end)
-        CM:OnLoaded(function(name) end)
-        CM:OnDeleted(function(name) end)
-
-    ── FILE STORAGE ─────────────────────────────────────────────────
-        Folder layout (makefolder available):
-            axiui/<ScriptName>/<ProfileName>.json
-            axiui/<ScriptName>/_manifest.json
-
-        Flat fallback:
-            axiui_<ScriptName>_<ProfileName>.json
-            axiui_<ScriptName>__manifest.json
-]]
+-- AxiUI ConfigManager v2.1.0 — named profiles, auto-save, custom type handlers
 
 local _env    = (typeof(getgenv) == "function" and getgenv()) or _G
 local HttpSvc = game:GetService("HttpService")
@@ -120,38 +57,7 @@ end
 -- ═══════════════════════════════════════════════════════════════
 --  CUSTOM TYPE REGISTRATION
 -- ═══════════════════════════════════════════════════════════════
---[[
-    RegisterType(tag, checker, serializer, deserializer)
-
-    @param tag           string  — unique id stored as __type in JSON
-    @param checker       fn(v)   — returns true if this handler owns value v
-    @param serializer    fn(v)   — converts v to a plain JSON-safe table
-    @param deserializer  fn(t)   — converts the plain table back to the original type
-
-    Later registrations take priority over earlier ones.
-    Built-in types (color3, enum, …) are pre-registered below; you can
-    override them by registering the same tag again.
-
-    Example — save/load CFrame:
-        CM:RegisterType("cframe",
-            function(v) return typeof(v) == "CFrame" end,
-            function(v)
-                local x, y, z = v:ToEulerAnglesXYZ()
-                return { px=v.X, py=v.Y, pz=v.Z, rx=x, ry=y, rz=z }
-            end,
-            function(d)
-                return CFrame.new(d.px, d.py, d.pz)
-                     * CFrame.Angles(d.rx or 0, d.ry or 0, d.rz or 0)
-            end
-        )
-
-    Example — save/load a plain Lua table of data:
-        CM:RegisterType("mySettings",
-            function(v) return type(v) == "table" and v._isMySettings end,
-            function(v) return { speed = v.speed, mode = v.mode } end,
-            function(d) return { _isMySettings = true, speed = d.speed, mode = d.mode } end
-        )
-]]
+-- RegisterType(tag, checker, serializeFn, deserializeFn) — teach the serializer a new value type
 function CM:RegisterType(tag, checker, serializer, deserializer)
     assert(type(tag)          == "string",   "[AxiUI CM] RegisterType: tag must be a string")
     assert(type(checker)      == "function", "[AxiUI CM] RegisterType: checker must be a function")
@@ -174,33 +80,7 @@ end
 -- ═══════════════════════════════════════════════════════════════
 --  EXTRA DATA SLOTS
 -- ═══════════════════════════════════════════════════════════════
---[[
-    RegisterExtra(key, getter, setter)
-
-    Saves/loads arbitrary non-flag data alongside the profile.
-    The getter must return JSON-serializable data (table/string/number/bool).
-
-    @param key     string  — unique key in the "__extras" block of the JSON
-    @param getter  fn()    — called on Save; returns the data to persist
-    @param setter  fn(data)— called on Load; receives the stored data
-
-    Example — persist window position:
-        CM:RegisterExtra("windowPos",
-            function()
-                return { x = win.Frame.Position.X.Offset,
-                         y = win.Frame.Position.Y.Offset }
-            end,
-            function(d)
-                win.Frame.Position = UDim2.fromOffset(d.x or 0, d.y or 0)
-            end
-        )
-
-    Example — persist a table of custom runtime state:
-        CM:RegisterExtra("killList",
-            function() return killTargets end,
-            function(d) for _, v in ipairs(d) do table.insert(killTargets, v) end end
-        )
-]]
+-- RegisterExtra(key, getter, setter) — save/load non-flag data alongside the profile
 function CM:RegisterExtra(key, getter, setter)
     assert(type(key)    == "string",   "[AxiUI CM] RegisterExtra: key must be a string")
     assert(type(getter) == "function", "[AxiUI CM] RegisterExtra: getter must be a function")

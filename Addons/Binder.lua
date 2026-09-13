@@ -1,29 +1,4 @@
---[[
-    AxiUI — Binder v2.0.0
-    Maps AxiUI Core logic onto developer-built Studio GUI instances.
-    No renderer required. No window/tab hierarchy required.
-
-    Usage:
-        local AxiUI  = loadstring(game:HttpGet("...AxiUI_Core.lua"))()
-        local Binder = loadstring(game:HttpGet("...AxiUI_Binder.lua"))()
-
-        -- Bind a Studio TextButton to a toggle flag:
-        local toggleObj = Binder:BindToggle(myFrame, "SilentAim", {
-            Default = false,
-            OnStateChange = function(guiElement, isEnabled)
-                -- animate your own GUI here
-                myFrame.BackgroundColor3 = isEnabled and Color3.fromRGB(0,200,80)
-                    or Color3.fromRGB(60,55,80)
-            end,
-            Callback = function(v) print("SilentAim:", v) end,
-        })
-
-        -- External Set (also works via config load):
-        toggleObj:Set(true)
-
-    All Bind functions return an object with a Set() method and register the
-    flag in AxiUI.Flags so SaveConfig / LoadConfig work transparently.
-]]
+-- AxiUI Binder v2.0.0 — wire Core flags to any Studio-built GUI, no renderer needed
 
 local _env  = (typeof(getgenv) == "function" and getgenv()) or _G
 local AxiUI = _env.AxiUI

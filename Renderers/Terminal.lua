@@ -1,13 +1,4 @@
---[[
-    AxiUI — Terminal Renderer v2.0.0
-    CLI / console aesthetic. Monospaced, green-on-black, ASCII borders.
-    No tweens, no transparency, no images.
-
-    Usage:
-        local AxiUI    = loadstring(game:HttpGet("...AxiUI_Core.lua"))()
-        local Terminal = loadstring(game:HttpGet("...Renderers/AxiUI_Renderer_Terminal.lua"))()
-        AxiUI:SetRenderer(Terminal)
-]]
+-- AxiUI Terminal Renderer v2.0.0 — green-on-black CLI aesthetic, ASCII borders
 
 local Renderer = {}
 

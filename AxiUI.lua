@@ -1,16 +1,4 @@
---[[
-    AxiUI — Core v2.0.0 (Universal)
-    Pure state machine. Zero visual output. Renderer-agnostic.
-
-    Load order:
-        local AxiUI = loadstring(game:HttpGet("...AxiUI_Core.lua"))()
-        local Renderer = loadstring(game:HttpGet("...Renderers/AxiUI_Renderer_Modern.lua"))()
-        AxiUI:SetRenderer(Renderer)
-
-    Optional extras:
-        loadstring(game:HttpGet("...AxiUI_ThemeManager.lua"))()
-        loadstring(game:HttpGet("...AxiUI_Binder.lua"))()
-]]
+-- AxiUI Core v2.0.0 — pure state machine, zero visual output
 
 local AxiUI       = {}
 AxiUI.__index     = AxiUI

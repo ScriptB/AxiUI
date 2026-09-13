@@ -1,16 +1,4 @@
---[[
-    AxiUI — Basic Renderer v2.0.0
-    Flat, zero-transparency, high-performance renderer.
-    No tweens, no popups, no colour themes — pure legibility.
-
-    Ideal for: performance-sensitive scripts, minimal setups,
-               users who prefer a no-frills look.
-
-    Usage:
-        local AxiUI  = loadstring(game:HttpGet("...AxiUI_Core.lua"))()
-        local Basic  = loadstring(game:HttpGet("...Renderers/AxiUI_Renderer_Basic.lua"))()
-        AxiUI:SetRenderer(Basic)
-]]
+-- AxiUI Basic Renderer v2.0.0 — flat, zero-transparency, high-performance
 
 local Renderer = {}
 

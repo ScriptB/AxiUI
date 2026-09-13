@@ -1,27 +1,4 @@
---[[
-    AxiUI — ThemeManager v2.0.0 (Refactored)
-    Manages swapping whole renderer modules on the fly.
-    No color-tree crawling. No false positives.
-
-    Usage:
-        local AxiUI         = loadstring(game:HttpGet("...AxiUI_Core.lua"))()
-        local ThemeManager  = loadstring(game:HttpGet("...AxiUI_ThemeManager.lua"))()
-        local Modern        = loadstring(game:HttpGet("...Renderers/AxiUI_Renderer_Modern.lua"))()
-        local Basic         = loadstring(game:HttpGet("...Renderers/AxiUI_Renderer_Basic.lua"))()
-
-        ThemeManager:Register("Modern",  Modern)
-        ThemeManager:Register("Basic",   Basic)
-
-        AxiUI:SetRenderer(Modern)
-        -- ... build your UI ...
-
-        -- Later:
-        ThemeManager:Apply("Basic")  -- swaps entire visual layer live
-
-    For colour themes WITHIN a renderer (e.g. Modern's built-in palettes),
-    call the renderer's own ApplyColorTheme method directly:
-        Modern:ApplyColorTheme("Ocean")
-]]
+-- AxiUI ThemeManager v2.0.0 — renderer registry and live hot-swap
 
 local _env  = (typeof(getgenv) == "function" and getgenv()) or _G
 local AxiUI = _env.AxiUI

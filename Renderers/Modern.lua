@@ -1,18 +1,4 @@
---[[
-    AxiUI — Modern Renderer v2.0.0
-    Sleek translucent glass aesthetic. Full feature set.
-    Requires AxiUI_Core to be loaded first.
-
-    Colour themes (within this renderer, zero tree-crawling):
-        Renderer:ApplyColorTheme("Ocean")
-        Renderer:ApplyColorTheme("Rose")
-        -- etc. — see ColorThemes table below.
-
-    Usage:
-        local AxiUI    = loadstring(game:HttpGet("...AxiUI_Core.lua"))()
-        local Renderer = loadstring(game:HttpGet("...Renderers/AxiUI_Renderer_Modern.lua"))()
-        AxiUI:SetRenderer(Renderer)
-]]
+-- AxiUI Modern Renderer v2.0.0 — glass aesthetic, tweens, HSV picker, 8 colour themes
 
 local Renderer = {}
 
