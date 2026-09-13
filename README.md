@@ -20,7 +20,7 @@ Build once — swap the entire visual layer at runtime without touching your log
 
 ## 🔌 Installation
 
-Load **Core** and a **Renderer** — everything else is optional.
+> **Minimum:** Core + one Renderer. ThemeManager, ConfigManager, and Binder are all optional — load only what your script needs.
 
 ```lua
 -- Core (required)
